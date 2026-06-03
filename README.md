@@ -4,6 +4,14 @@ Bidirectional sync daemon for your Obsidian vault between iCloud Drive and a Lin
 
 Features a dark-theme web dashboard (port 11111) with real-time sync logs via WebSocket, a conflict resolution UI, config editor, and a CLI.
 
+## Status and disclaimer
+
+1. This is **VIBE CODED** (with opencode + big pickle model). I am not a developer, just needed this specific tool.
+2. Very much WIP. Feedback / PRs welcome. Seems to work for me but YMMV.
+3. **I TAKE ABSOLUTELY NO RESPONSIBILITY FOR ANYTHING THIS TOOL CAUSES**, including complete data loss or anything else whatsoever.
+
+**ALWAYS BACK UP YOUR VAULT!**
+
 ## Installation
 
 ```bash
