@@ -7,6 +7,7 @@ Features a dark-theme web dashboard (port 11111) with real-time sync logs via We
 ## Status and disclaimer
 
 1. This is **VIBE CODED** (with opencode + big pickle model). I am not a developer, just needed this specific tool.
+Now, I do realise that putting vibecoded shit on gh is questionable, to put it mildly. but i did spend a couple days debugging it, so someone might find it handy and save themselves a few hours.
 2. Very much WIP. Feedback / PRs welcome. Seems to work for me but YMMV.
 3. **I TAKE ABSOLUTELY NO RESPONSIBILITY FOR ANYTHING THIS TOOL CAUSES**, including complete data loss or anything else whatsoever.
 
