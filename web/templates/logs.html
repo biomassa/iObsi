@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="toolbar">
+    <h2 style="font-size:16px;color:#f0f6fc;flex:1">Live Log</h2>
+    <button class="btn btn-sm" onclick="clearLogView()">Clear</button>
+</div>
+<pre class="log-view" id="logView"><span style="color:#8b949e">Connecting to log stream...</span></pre>
+{% endblock %}

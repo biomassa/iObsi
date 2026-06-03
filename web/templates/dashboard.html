@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="toolbar">
+    <span id="statusBadge" class="status-badge stopped">● Connecting...</span>
+    <span id="lastSync" style="color:#8b949e;font-size:13px;"></span>
+    <span style="flex:1"></span>
+    <button class="btn" onclick="triggerSync()">Sync Now</button>
+    <button id="pauseBtn" class="btn" onclick="togglePause()">Pause</button>
+</div>
+
+<div class="grid">
+    <div class="stat">
+        <div class="value" id="statFiles">—</div>
+        <div class="label">Files</div>
+    </div>
+    <div class="stat">
+        <div class="value" id="statUploaded">—</div>
+        <div class="label">Uploaded</div>
+    </div>
+    <div class="stat">
+        <div class="value" id="statDownloaded">—</div>
+        <div class="label">Downloaded</div>
+    </div>
+    <div class="stat">
+        <div class="value" id="statConflicts">—</div>
+        <div class="label">Conflicts</div>
+    </div>
+    <div class="stat">
+        <div class="value" id="statErrors">—</div>
+        <div class="label">Errors</div>
+    </div>
+    <div class="stat">
+        <div class="value" id="statDeleted">—</div>
+        <div class="label">Deleted</div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Recent Activity</h2>
+    <pre class="log-view" id="logView"><span style="color:#8b949e">Waiting for logs...</span></pre>
+</div>
+{% endblock %}

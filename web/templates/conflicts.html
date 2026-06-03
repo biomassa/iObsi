@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="toolbar">
+    <h2 style="font-size:16px;color:#f0f6fc;flex:1">Conflicts</h2>
+    <button class="btn btn-sm" onclick="loadConflicts()">Refresh</button>
+</div>
+<div id="conflictList">
+    <div class="card" style="color:#8b949e">Loading...</div>
+</div>
+{% endblock %}

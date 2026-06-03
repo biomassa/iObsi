@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Obsidian iCloud Sync</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #1a1b1e; color: #c9d1d9; font-size: 14px; line-height: 1.5;
+}
+a { color: #58a6ff; text-decoration: none; }
+a:hover { text-decoration: underline; }
+nav {
+    background: #161b22; border-bottom: 1px solid #30363d;
+    padding: 0 24px; display: flex; align-items: center; height: 52px;
+    gap: 24px;
+}
+nav .brand { font-weight: 600; font-size: 16px; color: #f0f6fc; }
+nav a { color: #8b949e; font-size: 14px; padding: 4px 0; }
+nav a.active { color: #f0f6fc; border-bottom: 2px solid #f78166; }
+.container { max-width: 1000px; margin: 0 auto; padding: 24px; }
+.card {
+    background: #161b22; border: 1px solid #30363d; border-radius: 8px;
+    padding: 20px; margin-bottom: 16px;
+}
+.card h2 { font-size: 16px; margin-bottom: 12px; color: #f0f6fc; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+.stat {
+    background: #0d1117; border: 1px solid #30363d; border-radius: 6px;
+    padding: 16px; text-align: center;
+}
+.stat .value { font-size: 28px; font-weight: 700; color: #f0f6fc; }
+.stat .label { font-size: 12px; color: #8b949e; margin-top: 4px; }
+.btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: 6px; border: 1px solid #30363d;
+    background: #21262d; color: #c9d1d9; font-size: 13px; cursor: pointer;
+    transition: background .15s;
+}
+.btn:hover { background: #30363d; }
+.btn-primary { background: #238636; border-color: #2ea043; color: #fff; }
+.btn-primary:hover { background: #2ea043; }
+.btn-danger { background: #da3633; border-color: #f85149; color: #fff; }
+.btn-danger:hover { background: #f85149; }
+.btn-sm { padding: 4px 10px; font-size: 12px; }
+.toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
+.status-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 500;
+}
+.status-badge.running { background: #0d5321; color: #7ee787; }
+.status-badge.paused { background: #54260d; color: #feb272; }
+.status-badge.stopped { background: #3d1312; color: #f87171; }
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid #21262d; }
+th { color: #8b949e; font-weight: 500; font-size: 12px; text-transform: uppercase; }
+tr:hover td { background: #161b22; }
+pre.log-view {
+    background: #0d1117; border: 1px solid #30363d; border-radius: 6px;
+    padding: 16px; font-size: 12px; font-family: 'Fira Code', 'Cascadia Code', monospace;
+    max-height: 70vh; overflow-y: auto; line-height: 1.6;
+}
+pre.log-view .info { color: #7ee787; }
+pre.log-view .warn { color: #feb272; }
+pre.log-view .error { color: #f87171; }
+input[type="text"], input[type="number"], select {
+    background: #0d1117; border: 1px solid #30363d; border-radius: 6px;
+    padding: 8px 12px; color: #c9d1d9; font-size: 13px; width: 100%;
+}
+.form-group { margin-bottom: 12px; }
+.form-group label { display: block; font-size: 12px; color: #8b949e; margin-bottom: 4px; }
+.preview-box {
+    background: #0d1117; border: 1px solid #30363d; border-radius: 4px;
+    padding: 8px; font-size: 11px; font-family: monospace;
+    max-height: 80px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;
+}
+.conflict-actions { display: flex; gap: 6px; margin-top: 8px; }
+.flash { animation: flash 1s; }
+@keyframes flash { 0% { opacity: .6; } 100% { opacity: 1; } }
+</style>
+</head>
+<body>
+<nav>
+    <span class="brand">⚡ Obsidian Sync</span>
+    <a href="/" class="{% if request.url.path == '/' %}active{% endif %}">Dashboard</a>
+    <a href="/logs" class="{% if request.url.path == '/logs' %}active{% endif %}">Logs</a>
+    <a href="/conflicts" class="{% if request.url.path == '/conflicts' %}active{% endif %}">Conflicts</a>
+    <a href="/config" class="{% if request.url.path == '/config' %}active{% endif %}">Config</a>
+</nav>
+<div class="container">
+{% block content %}{% endblock %}
+</div>
+<script src="/static/app.js"></script>
+</body>
+</html>
