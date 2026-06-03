@@ -183,8 +183,9 @@ async function saveConfig(event) {
 document.addEventListener("DOMContentLoaded", () => {
     if (document.getElementById("logView")) {
         connectLogWs();
-        // Load initial logs
-        fetch("/api/logs?tail=20")
+        const el = document.getElementById("logView");
+        const tail = el.getAttribute("data-tail") || "50";
+        fetch("/api/logs?tail=" + tail)
             .then(r => r.json())
             .then(logs => {
                 const el = document.getElementById("logView");
