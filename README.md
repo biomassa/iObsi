@@ -15,7 +15,7 @@ Features a dark-theme web dashboard (port 11111) with real-time sync logs via We
 ## Installation
 
 ```bash
-git clone <url> && cd iObsi
+git clone git@github.com:biomassa/iObsi.git && cd iObsi
 python3 -m venv .venv && source .venv/bin/activate
 pip install pyicloud watchdog keyring fastapi uvicorn jinja2 websockets python-multipart click
 ```
@@ -25,17 +25,10 @@ pip install pyicloud watchdog keyring fastapi uvicorn jinja2 websockets python-m
 ```bash
 source .venv/bin/activate
 
-# First-time setup — Apple ID, 2FA, vault discovery
-python3 sync.py setup
-
-# Start the daemon (sync loop + web UI at http://localhost:11111)
-python3 sync.py run
-
-# Or run a single sync cycle and exit
-python3 sync.py once
-
-# Check vault status
-python3 sync.py status
+python3 sync.py setup   # first-time setup — Apple ID, 2FA, vault discovery
+python3 sync.py run     # start daemon + web UI (http://localhost:11111)
+python3 sync.py once    # single sync cycle
+python3 sync.py status  # vault status
 ```
 
 The daemon watches your local vault via `watchdog`, polls iCloud Drive every 60s, and handles conflicts with a configurable strategy (last-writer-wins by default).
