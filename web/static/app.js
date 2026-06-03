@@ -184,7 +184,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (document.getElementById("logView")) {
         connectLogWs();
         // Load initial logs
-        fetch("/api/logs?tail=50")
+        fetch("/api/logs?tail=20")
             .then(r => r.json())
             .then(logs => {
                 const el = document.getElementById("logView");
