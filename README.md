@@ -10,6 +10,8 @@ Features a dark-theme web dashboard (port 11111) with real-time sync logs via We
 2. Very much WIP. Feedback / PRs welcome. Seems to work for me but YMMV.
 3. **I TAKE ABSOLUTELY NO RESPONSIBILITY FOR ANYTHING THIS TOOL CAUSES**, including complete data loss or anything else whatsoever.
 
+**ALWAYS BACK UP YOUR VAULT!**  
+**ALWAYS BACK UP YOUR VAULT!**  
 **ALWAYS BACK UP YOUR VAULT!**
 
 ## Installation
