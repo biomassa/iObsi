@@ -23,10 +23,21 @@ pip install pyicloud watchdog keyring fastapi uvicorn jinja2 websockets python-m
 ## Usage
 
 ```bash
-bash -c "source .venv/bin/activate && python3 sync.py setup"   # first-time setup — Apple ID, 2FA, vault discovery
-bash -c "source .venv/bin/activate && python3 sync.py run"     # start daemon + web UI (http://localhost:11111)
-bash -c "source .venv/bin/activate && python3 sync.py once"    # single sync cycle
-bash -c "source .venv/bin/activate && python3 sync.py status"  # vault status
+source .venv/bin/activate
+
+python3 sync.py setup   # first-time setup — Apple ID, 2FA, vault discovery
+python3 sync.py run     # start daemon + web UI (http://localhost:11111)
+python3 sync.py once    # single sync cycle
+python3 sync.py status  # vault status
+```
+
+Alternatively, run without activating the venv first:
+
+```bash
+bash -c "source .venv/bin/activate && python3 sync.py setup"
+bash -c "source .venv/bin/activate && python3 sync.py run"
+bash -c "source .venv/bin/activate && python3 sync.py once"
+bash -c "source .venv/bin/activate && python3 sync.py status"
 ```
 
 The daemon watches your local vault via `watchdog`, polls iCloud Drive every 60s, and handles conflicts with a configurable strategy (last-writer-wins by default).
