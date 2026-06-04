@@ -55,4 +55,4 @@ To stop the daemon:
 lsof -ti:11111 | xargs kill
 ```
 
-The daemon watches your local vault via `watchdog`, polls iCloud Drive every 60s, and handles conflicts with a configurable strategy (last-writer-wins by default).
+The daemon watches your local vault via `watchdog`, performs a full iCloud Drive scan every 120s, and handles conflicts with a configurable strategy (last-writer-wins by default).
