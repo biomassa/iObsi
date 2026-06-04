@@ -1,5 +1,7 @@
 # iObsi — Obsidian ⇄ iCloud Sync Daemon
 
+![iObsi dashboard](iObsi.png)
+
 Bidirectional sync daemon for your Obsidian vault between iCloud Drive and a Linux machine. Keeps your notes in sync without a third-party cloud.
 
 Features a dark-theme web dashboard (port 11111) with real-time sync logs via WebSocket, a conflict resolution UI, config editor, and a CLI.
