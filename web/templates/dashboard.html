@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block head_meta %}<meta http-equiv="refresh" content="60">{% endblock %}
 {% block content %}
 <div class="toolbar">
     <span id="statusBadge" class="status-badge stopped">● Connecting...</span>
@@ -35,7 +36,7 @@
     </div>
 </div>
 
-<div class="card">
+<div class="card card-plain">
     <h2>Recent Activity</h2>
     <pre class="log-view" id="logView" data-tail="20"><span style="color:#8b949e">Waiting for logs...</span></pre>
 </div>

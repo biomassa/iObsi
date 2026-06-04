@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Obsidian ⇄ iCloud</title>
+{% block head_meta %}{% endblock %}
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -26,6 +27,7 @@ nav a.active { color: #f0f6fc; border-bottom: 2px solid #f78166; }
     padding: 20px; margin-bottom: 16px;
 }
 .card h2 { font-size: 16px; margin-bottom: 12px; color: #f0f6fc; }
+.card-plain { background: none; border: none; padding: 0; margin-top: 32px; }
 .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
 .stat {
     background: #0d1117; border-radius: 6px;

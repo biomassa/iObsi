@@ -43,4 +43,16 @@ bash -c "source .venv/bin/activate && python3 sync.py once"
 bash -c "source .venv/bin/activate && python3 sync.py status"
 ```
 
+To run in the background:
+
+```bash
+nohup bash -c "source .venv/bin/activate && python3 sync.py run" > /tmp/iobsi-daemon.log 2>&1 &
+```
+
+To stop the daemon:
+
+```bash
+lsof -ti:11111 | xargs kill
+```
+
 The daemon watches your local vault via `watchdog`, polls iCloud Drive every 60s, and handles conflicts with a configurable strategy (last-writer-wins by default).
