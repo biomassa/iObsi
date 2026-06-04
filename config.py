@@ -9,7 +9,7 @@ DEFAULT_CONFIG = {
     "vault_name": "",
     "local_path": "/home/dingus/obsi",
     "web_port": 11111,
-    "poll_interval": 60,
+    "poll_interval": 120,
     "conflict_strategy": "last-writer-wins",
     "sync_deletes": True,
     "log_level": "INFO",

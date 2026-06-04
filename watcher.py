@@ -3,7 +3,7 @@ import threading
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
-from sync_engine import trigger_sync, log, _sync_running, _watchdog_suppress_until
+from sync_engine import log, _sync_running, _sync_trigger, _watchdog_suppress_until
 
 _DEBOUNCE_SECONDS = 0.3
 
@@ -33,7 +33,7 @@ class VaultEventHandler(FileSystemEventHandler):
             return
         self._last_trigger = now
         log("INFO", "Local change detected — triggering sync")
-        trigger_sync()
+        _sync_trigger.set()
 
     def on_modified(self, event):
         if not event.is_directory:

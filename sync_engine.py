@@ -659,7 +659,7 @@ def _handle_deletions(local_files, remote_files, vault_node, local_path):
 
 def daemon_loop(api, vault_node, cfg):
     db_init()
-    poll_interval = cfg.get("poll_interval", 60)
+    poll_interval = cfg.get("poll_interval", 120)
 
     local_path = cfg["local_path"]
     is_bootstrapped = os.path.isdir(os.path.join(local_path, ".obsidian"))
