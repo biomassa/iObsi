@@ -35,6 +35,7 @@
         <div class="form-group">
             <label>Log Level</label>
             <select name="log_level">
+                <option value="DEBUG" {% if config.log_level == 'DEBUG' %}selected{% endif %}>DEBUG</option>
                 <option value="INFO" {% if config.log_level == 'INFO' %}selected{% endif %}>INFO</option>
                 <option value="WARN" {% if config.log_level == 'WARN' %}selected{% endif %}>WARN</option>
                 <option value="ERROR" {% if config.log_level == 'ERROR' %}selected{% endif %}>ERROR</option>
