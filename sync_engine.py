@@ -39,6 +39,13 @@ _LOG_LEVEL_ORDER = {"DEBUG": 0, "INFO": 1, "WARN": 2, "ERROR": 3}
 _current_log_level = "INFO"
 
 
+def set_log_level(level):
+    global _current_log_level
+    if level in _LOG_LEVEL_ORDER:
+        _current_log_level = level
+        log("INFO", f"Log level changed to {level}")
+
+
 def log(level, message):
     if _LOG_LEVEL_ORDER.get(level, 0) < _LOG_LEVEL_ORDER.get(_current_log_level, 1):
         return

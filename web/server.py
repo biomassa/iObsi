@@ -16,7 +16,7 @@ from config import load as load_config, save as save_config
 from sync_engine import (
     get_logs, subscribe_logs, unsubscribe_logs,
     is_running, is_paused, pause, resume, trigger_sync, shutdown,
-    _load_stats,
+    _load_stats, set_log_level,
 )
 from state_db import unresolved_conflicts, resolve_conflict, remove_conflict
 
@@ -147,6 +147,8 @@ async def api_put_config(data: dict):
         if k in cfg and k not in ("apple_id",):
             cfg[k] = v
     save_config(cfg)
+    if "log_level" in data:
+        set_log_level(data["log_level"])
     return {"ok": True}
 
 
