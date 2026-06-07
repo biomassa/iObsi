@@ -134,12 +134,12 @@ def _save_stats(**kw):
 
 
 def bootstrap_vault(api, vault_node, local_path):
-    log("DEBUG", "Bootstrapping vault — downloading all files from iCloud Drive...")
+    log("INFO", "Bootstrapping vault — downloading all files from iCloud Drive...")
     remote_files = scan_remote(vault_node)
     if isinstance(remote_files, tuple):
         remote_files = remote_files[0]
     total = len(remote_files)
-    log("DEBUG", f"Found {total} files in iCloud vault")
+    log("INFO", f"Found {total} files in iCloud vault")
 
     for i, (rel_path, info) in enumerate(sorted(remote_files.items())):
         if _shutdown_event.is_set():
@@ -164,13 +164,13 @@ def bootstrap_vault(api, vault_node, local_path):
                 last_sync_hash=h or "",
             )
             if (i + 1) % 50 == 0:
-                log("DEBUG", f"Bootstrap: {i + 1}/{total} files downloaded")
+                log("INFO", f"Bootstrap: {i + 1}/{total} files downloaded")
         except Exception as e:
             log("ERROR", f"Failed to download {rel_path}: {e}")
 
     _save_stats(files=total, uploaded=0, downloaded=total, conflicts=0, errors=0)
     set_meta("last_sync", time.strftime("%Y-%m-%d %H:%M:%S"))
-    log("DEBUG", f"Bootstrap complete — {total} files synced")
+    log("INFO", f"Bootstrap complete — {total} files synced")
 
 
 # ── helper: resolve node path ───────────────────────
@@ -290,7 +290,7 @@ def _run_sync_cycle(api, vault_node, cfg, force=False):
     sync_deletes = cfg.get("sync_deletes", True)
 
     if not os.path.isdir(os.path.join(local_path, ".obsidian")):
-        log("DEBUG", "No local vault found — starting bootstrap")
+        log("INFO", "No local vault found — starting bootstrap")
         os.makedirs(local_path, exist_ok=True)
         bootstrap_vault(api, vault_node, local_path)
         _save_stats(last_sync=datetime.now().isoformat())
@@ -325,7 +325,7 @@ def _run_sync_cycle(api, vault_node, cfg, force=False):
     sorted_paths = sorted(all_paths)
     for idx, rel_path in enumerate(sorted_paths):
         if _shutdown_event.is_set():
-            log("DEBUG", "Shutdown requested, aborting sync")
+            log("INFO", "Shutdown requested, aborting sync")
             return
 
         local_info = local_files.get(rel_path)
@@ -679,11 +679,11 @@ def daemon_loop(api, vault_node, cfg):
     is_bootstrapped = os.path.isdir(os.path.join(local_path, ".obsidian"))
 
     if not is_bootstrapped:
-        log("DEBUG", "No local vault found — starting bootstrap")
+        log("INFO", "No local vault found — starting bootstrap")
         os.makedirs(local_path, exist_ok=True)
         bootstrap_vault(api, vault_node, local_path)
 
-    log("DEBUG", "Daemon started — watching for changes")
+    log("INFO", "Daemon started — watching for changes")
 
     while not _shutdown_event.is_set():
         _sync_trigger.wait(poll_interval)
@@ -703,4 +703,4 @@ def daemon_loop(api, vault_node, cfg):
             _sync_force_refresh.clear()
         run_sync_cycle(api, vault_node, cfg, force=force)
 
-    log("DEBUG", "Daemon stopped")
+    log("INFO", "Daemon stopped")

@@ -64,10 +64,10 @@ def run(port, cfg_path):
     web_path = os.path.join(HERE, "web")
 
     click.echo(f"Web UI: http://localhost:{port}")
-    engine_log("DEBUG", f"Web UI started on http://localhost:{port}")
+    engine_log("INFO", f"Web UI started on http://localhost:{port}")
 
     def sig_handler(sig, frame):
-        engine_log("DEBUG", "Shutting down...")
+        engine_log("INFO", "Shutting down...")
         engine_shutdown()
         if watcher:
             watcher.stop()
