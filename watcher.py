@@ -32,7 +32,7 @@ class VaultEventHandler(FileSystemEventHandler):
         if now - self._last_trigger < 30:
             return
         self._last_trigger = now
-        log("INFO", "Local change detected — triggering sync")
+        log("DEBUG", "Local change detected — triggering sync")
         _sync_trigger.set()
 
     def on_modified(self, event):
