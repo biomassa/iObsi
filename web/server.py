@@ -16,7 +16,7 @@ from config import load as load_config, save as save_config
 from sync_engine import (
     get_logs, subscribe_logs, unsubscribe_logs,
     is_running, is_paused, pause, resume, trigger_sync, shutdown,
-    _load_stats, set_log_level,
+    _load_stats, set_log_level, log as engine_log,
 )
 from state_db import unresolved_conflicts, resolve_conflict, remove_conflict
 
@@ -84,6 +84,7 @@ async def api_status():
 
 @app.post("/api/sync")
 async def api_sync():
+    engine_log("INFO", "Manual sync triggered via web UI")
     trigger_sync()
     return {"ok": True, "message": "Sync triggered"}
 
