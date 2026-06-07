@@ -595,7 +595,7 @@ def _run_sync_cycle(api, vault_node, cfg, force=False):
                 log("INFO", f"Removed from tracking: {rel_path}")
 
     if not remote_fresh:
-        log("INFO", "Remote scan data is stale — skipping deletions")
+        log("WARN", "Remote scan data is stale — skipping deletions")
 
     # ── Handle actual deletions ──
     if sync_deletes and remote_fresh:
