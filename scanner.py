@@ -114,7 +114,7 @@ def scan_remote(vault_node, force=False):
     fresh = False
     if do_force:
         reason = "force" if force else ("invalidated" if forced else "timer")
-        _log("INFO", f"Force-refreshing remote scan ({reason})")
+        _log("DEBUG", f"Force-refreshing remote scan ({reason})")
         saved = getattr(vault_node, "_children", None)
         pool = concurrent.futures.ThreadPoolExecutor(max_workers=1)
         try:
@@ -122,14 +122,14 @@ def scan_remote(vault_node, force=False):
             fut.result(timeout=_FORCE_TIMEOUT)
             last_force_refresh = now
             fresh = True
-            _log("INFO", "Remote scan force-refresh succeeded")
+            _log("DEBUG", "Remote scan force-refresh succeeded")
         except concurrent.futures.TimeoutError:
             vault_node._children = saved
-            _log("WARN", f"Remote scan force-refresh timed out after {_FORCE_TIMEOUT}s — using cached data")
+            _log("INFO", f"Remote scan force-refresh timed out after {_FORCE_TIMEOUT}s — using cached data")
             last_force_refresh = now
         except Exception:
             vault_node._children = saved
-            _log("WARN", "Remote scan force-refresh failed — using cached data")
+            _log("INFO", "Remote scan force-refresh failed — using cached data")
             last_force_refresh = now
         finally:
             pool.shutdown(wait=False)

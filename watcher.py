@@ -63,9 +63,9 @@ class VaultWatcher:
             self._handler, self._vault_path, recursive=True
         )
         self._observer.start()
-        log("INFO", f"Watchdog monitoring: {self._vault_path}")
+        log("DEBUG", f"Watchdog monitoring: {self._vault_path}")
 
     def stop(self):
         self._observer.stop()
         self._observer.join()
-        log("INFO", "Watchdog stopped")
+        log("DEBUG", "Watchdog stopped")

@@ -12,7 +12,7 @@ DEFAULT_CONFIG = {
     "poll_interval": 120,
     "conflict_strategy": "last-writer-wins",
     "sync_deletes": True,
-    "log_level": "WARN",
+    "log_level": "INFO",
     "ignore_patterns": [
         "*.tmp", "*.swp", "*.part", "*.icloud", ".DS_Store",
         "._*", "~$*", ".trash/", ".sync-tmp-*",

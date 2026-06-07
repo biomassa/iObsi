@@ -36,7 +36,7 @@ _watchdog_suppress_until = 0.0
 _web_log_listeners = []
 
 _LOG_LEVEL_ORDER = {"DEBUG": 0, "INFO": 1, "WARN": 2, "ERROR": 3}
-_current_log_level = "WARN"
+_current_log_level = "INFO"
 
 
 def log(level, message):
@@ -127,12 +127,12 @@ def _save_stats(**kw):
 
 
 def bootstrap_vault(api, vault_node, local_path):
-    log("INFO", "Bootstrapping vault — downloading all files from iCloud Drive...")
+    log("DEBUG", "Bootstrapping vault — downloading all files from iCloud Drive...")
     remote_files = scan_remote(vault_node)
     if isinstance(remote_files, tuple):
         remote_files = remote_files[0]
     total = len(remote_files)
-    log("INFO", f"Found {total} files in iCloud vault")
+    log("DEBUG", f"Found {total} files in iCloud vault")
 
     for i, (rel_path, info) in enumerate(sorted(remote_files.items())):
         if _shutdown_event.is_set():
@@ -157,13 +157,13 @@ def bootstrap_vault(api, vault_node, local_path):
                 last_sync_hash=h or "",
             )
             if (i + 1) % 50 == 0:
-                log("INFO", f"Bootstrap: {i + 1}/{total} files downloaded")
+                log("DEBUG", f"Bootstrap: {i + 1}/{total} files downloaded")
         except Exception as e:
             log("ERROR", f"Failed to download {rel_path}: {e}")
 
     _save_stats(files=total, uploaded=0, downloaded=total, conflicts=0, errors=0)
     set_meta("last_sync", time.strftime("%Y-%m-%d %H:%M:%S"))
-    log("INFO", f"Bootstrap complete — {total} files synced")
+    log("DEBUG", f"Bootstrap complete — {total} files synced")
 
 
 # ── helper: resolve node path ───────────────────────
@@ -263,7 +263,7 @@ def _upload_file(root_node, rel_path, local_abs_path, api=None):
 
 def run_sync_cycle(api, vault_node, cfg, force=False):
     if _sync_running.is_set():
-        log("WARN", "Sync already in progress, skipping")
+        log("INFO", "Sync already in progress, skipping")
         return
     _sync_running.set()
     try:
@@ -283,19 +283,19 @@ def _run_sync_cycle(api, vault_node, cfg, force=False):
     sync_deletes = cfg.get("sync_deletes", True)
 
     if not os.path.isdir(os.path.join(local_path, ".obsidian")):
-        log("INFO", "No local vault found — starting bootstrap")
+        log("DEBUG", "No local vault found — starting bootstrap")
         os.makedirs(local_path, exist_ok=True)
         bootstrap_vault(api, vault_node, local_path)
         _save_stats(last_sync=datetime.now().isoformat())
-        log("INFO", "Sync cycle complete")
+        log("DEBUG", "Sync cycle complete")
         return
 
-    log("INFO", "Starting sync cycle")
+    log("DEBUG", "Starting sync cycle")
 
     try:
         api.authenticate()
     except Exception as e:
-        log("WARN", f"Re-auth attempt failed: {e}")
+        log("INFO", f"Re-auth attempt failed: {e}")
 
     local_files = scan_local(local_path, extra_ignore)
     remote_files, remote_fresh = scan_remote(vault_node, force=force)
@@ -318,7 +318,7 @@ def _run_sync_cycle(api, vault_node, cfg, force=False):
     sorted_paths = sorted(all_paths)
     for idx, rel_path in enumerate(sorted_paths):
         if _shutdown_event.is_set():
-            log("INFO", "Shutdown requested, aborting sync")
+            log("DEBUG", "Shutdown requested, aborting sync")
             return
 
         local_info = local_files.get(rel_path)
@@ -355,7 +355,7 @@ def _run_sync_cycle(api, vault_node, cfg, force=False):
                     local_files[rel_path]["hash"] = h or ""
                     continue
                 stats_conflicts += 1
-                log("WARN", f"Conflict detected: {rel_path}")
+                log("INFO", f"Conflict detected: {rel_path}")
                 action, _ = resolve_conflict(
                     strategy, rel_path, local_info, remote_info
                 )
@@ -379,7 +379,7 @@ def _run_sync_cycle(api, vault_node, cfg, force=False):
                             "etag": new_remote.get("etag", ""),
                         }
                         stats_uploaded += 1
-                        log("WARN", f"Uploaded (conflict resolved): {rel_path}")
+                        log("INFO", f"Uploaded (conflict resolved): {rel_path}")
                     except Exception as e:
                         stats_errors += 1
                         log("ERROR", f"Upload failed {rel_path}: {e}")
@@ -418,12 +418,12 @@ def _run_sync_cycle(api, vault_node, cfg, force=False):
                                 "hash": h or "",
                             }
                             stats_downloaded += 1
-                            log("WARN", f"Downloaded (conflict resolved): {rel_path}")
+                            log("INFO", f"Downloaded (conflict resolved): {rel_path}")
                     except Exception as e:
                         stats_errors += 1
                         log("ERROR", f"Download failed {rel_path}: {e}")
                 else:
-                    log("WARN", f"Conflict skipped: {rel_path}")
+                    log("INFO", f"Conflict skipped: {rel_path}")
                 continue
 
             if local_changed:
@@ -459,7 +459,7 @@ def _run_sync_cycle(api, vault_node, cfg, force=False):
                         "etag": new_remote.get("etag", ""),
                     }
                     stats_uploaded += 1
-                    log("WARN", f"Uploaded: {rel_path}")
+                    log("INFO", f"Uploaded: {rel_path}")
                 except Exception as e:
                     stats_errors += 1
                     log("ERROR", f"Upload failed {rel_path}: {e}")
@@ -499,7 +499,7 @@ def _run_sync_cycle(api, vault_node, cfg, force=False):
                             "hash": h or "",
                         }
                         stats_downloaded += 1
-                        log("WARN", f"Downloaded: {rel_path}")
+                        log("INFO", f"Downloaded: {rel_path}")
                 except Exception as e:
                     stats_errors += 1
                     log("ERROR", f"Download failed {rel_path}: {e}")
@@ -516,7 +516,7 @@ def _run_sync_cycle(api, vault_node, cfg, force=False):
                             os.unlink(abs_path)
                         delete_state(rel_path)
                         stats_deleted += 1
-                        log("WARN", f"Deleted locally (remote deletion propagated): {rel_path}")
+                        log("INFO", f"Deleted locally (remote deletion propagated): {rel_path}")
                     except Exception as e:
                         stats_errors += 1
                         log("ERROR", f"Failed to delete locally {rel_path}: {e}")
@@ -540,7 +540,7 @@ def _run_sync_cycle(api, vault_node, cfg, force=False):
                         "etag": new_remote.get("etag", ""),
                     }
                     stats_uploaded += 1
-                    log("WARN", f"Uploaded (new): {rel_path}")
+                    log("INFO", f"Uploaded (new): {rel_path}")
                 except Exception as e:
                     stats_errors += 1
                     log("ERROR", f"Upload failed {rel_path}: {e}")
@@ -556,7 +556,7 @@ def _run_sync_cycle(api, vault_node, cfg, force=False):
                         delete_state(rel_path)
                         stats_deleted += 1
                         invalidate_remote_cache()
-                        log("WARN", f"Deleted from iCloud (local deletion propagated): {rel_path}")
+                        log("INFO", f"Deleted from iCloud (local deletion propagated): {rel_path}")
                     except Exception as e:
                         stats_errors += 1
                         log("ERROR", f"Failed to delete from iCloud {rel_path}: {e}")
@@ -582,7 +582,7 @@ def _run_sync_cycle(api, vault_node, cfg, force=False):
                             "hash": h or "",
                         }
                         stats_downloaded += 1
-                        log("WARN", f"Downloaded (new): {rel_path}")
+                        log("INFO", f"Downloaded (new): {rel_path}")
                 except Exception as e:
                     stats_errors += 1
                     log("ERROR", f"Download failed {rel_path}: {e}")
@@ -592,10 +592,10 @@ def _run_sync_cycle(api, vault_node, cfg, force=False):
             if sync_deletes:
                 delete_state(rel_path)
                 stats_deleted += 1
-                log("WARN", f"Removed from tracking: {rel_path}")
+                log("INFO", f"Removed from tracking: {rel_path}")
 
     if not remote_fresh:
-        log("WARN", "Remote scan data is stale — skipping deletions")
+        log("INFO", "Remote scan data is stale — skipping deletions")
 
     # ── Handle actual deletions ──
     if sync_deletes and remote_fresh:
@@ -614,7 +614,7 @@ def _run_sync_cycle(api, vault_node, cfg, force=False):
     set_meta("last_sync", time.strftime("%Y-%m-%d %H:%M:%S"))
 
     log(
-        "INFO",
+        "DEBUG",
         f"Sync complete: ↑{stats_uploaded}  ↓{stats_downloaded}  "
         f"⚠{stats_conflicts}  ✗{stats_errors}  🗑{stats_deleted}",
     )
@@ -635,7 +635,7 @@ def _handle_deletions(local_files, remote_files, vault_node, local_path):
                     node.delete()
                     delete_state(rel)
                     invalidate_remote_cache()
-                    log("WARN", f"Deleted from iCloud: {rel}")
+                    log("INFO", f"Deleted from iCloud: {rel}")
                     deleted += 1
             except Exception as e:
                 log("ERROR", f"Failed to delete from iCloud {rel}: {e}")
@@ -648,14 +648,14 @@ def _handle_deletions(local_files, remote_files, vault_node, local_path):
                 elif os.path.islink(abs_path):
                     os.unlink(abs_path)
                 delete_state(rel)
-                log("WARN", f"Deleted locally: {rel}")
+                log("INFO", f"Deleted locally: {rel}")
                 deleted += 1
             except Exception as e:
                 log("ERROR", f"Failed to delete locally {rel}: {e}")
         elif not in_local and not in_remote:
             delete_state(rel)
             deleted += 1
-            log("WARN", f"Removed from tracking (orphaned): {rel}")
+            log("INFO", f"Removed from tracking (orphaned): {rel}")
     return deleted
 
 
@@ -665,18 +665,18 @@ def _handle_deletions(local_files, remote_files, vault_node, local_path):
 def daemon_loop(api, vault_node, cfg):
     db_init()
     global _current_log_level
-    _current_log_level = cfg.get("log_level", "WARN")
+    _current_log_level = cfg.get("log_level", "INFO")
     poll_interval = cfg.get("poll_interval", 120)
 
     local_path = cfg["local_path"]
     is_bootstrapped = os.path.isdir(os.path.join(local_path, ".obsidian"))
 
     if not is_bootstrapped:
-        log("INFO", "No local vault found — starting bootstrap")
+        log("DEBUG", "No local vault found — starting bootstrap")
         os.makedirs(local_path, exist_ok=True)
         bootstrap_vault(api, vault_node, local_path)
 
-    log("INFO", "Daemon started — watching for changes")
+    log("DEBUG", "Daemon started — watching for changes")
 
     while not _shutdown_event.is_set():
         _sync_trigger.wait(poll_interval)
@@ -696,4 +696,4 @@ def daemon_loop(api, vault_node, cfg):
             _sync_force_refresh.clear()
         run_sync_cycle(api, vault_node, cfg, force=force)
 
-    log("INFO", "Daemon stopped")
+    log("DEBUG", "Daemon stopped")
