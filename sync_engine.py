@@ -32,6 +32,9 @@ _sync_trigger = threading.Event()
 _sync_force_refresh = threading.Event()
 _shutdown_event = threading.Event()
 _watchdog_suppress_until = 0.0
+_pending_remote_deletions = []
+_DELETION_THRESHOLD = 10
+_pending_deletions_lock = threading.Lock()
 
 _web_log_listeners = []
 
@@ -94,6 +97,95 @@ def resume():
 
 def is_paused():
     return _sync_paused.is_set()
+
+
+def get_pending_deletions():
+    with _pending_deletions_lock:
+        return list(_pending_remote_deletions)
+
+
+def confirm_pending_deletions(api, vault_node, cfg):
+    log("INFO", "Re-scanning remote to verify pending deletions...")
+    remote_files, _ = scan_remote(vault_node, force=True)
+    local_path = cfg["local_path"]
+    with _pending_deletions_lock:
+        pending = list(_pending_remote_deletions)
+        _pending_remote_deletions.clear()
+    for rel_path in pending:
+        if rel_path in remote_files:
+            try:
+                node = _resolve_node(vault_node, rel_path)
+                if node:
+                    _download_file(node, os.path.join(local_path, rel_path))
+                    h = hash_file_head(os.path.join(local_path, rel_path))
+                    upsert_state(
+                        rel_path,
+                        local_mtime=remote_files[rel_path]["mtime"],
+                        local_hash=h or "",
+                        remote_etag=remote_files[rel_path].get("etag", ""),
+                        remote_mtime=remote_files[rel_path]["mtime"],
+                        remote_size=remote_files[rel_path].get("size", 0),
+                        last_sync_hash=h or "",
+                    )
+                    log("INFO", f"Re-downloaded (file exists on remote): {rel_path}")
+            except Exception as e:
+                log("ERROR", f"Failed to re-download {rel_path}: {e}")
+        else:
+            try:
+                abs_path = os.path.join(local_path, rel_path)
+                if os.path.isfile(abs_path):
+                    os.remove(abs_path)
+                elif os.path.islink(abs_path):
+                    os.unlink(abs_path)
+                delete_state(rel_path)
+                log("INFO", f"Deleted locally (confirmed remote deletion): {rel_path}")
+            except Exception as e:
+                log("ERROR", f"Failed to delete locally {rel_path}: {e}")
+    resume()
+
+
+def cancel_pending_deletions():
+    with _pending_deletions_lock:
+        _pending_remote_deletions.clear()
+    log("INFO", "Pending deletions cancelled — files left intact")
+    resume()
+
+
+def upload_pending_deletions(api, vault_node, cfg):
+    log("INFO", "Uploading pending files back to iCloud...")
+    local_path = cfg["local_path"]
+    with _pending_deletions_lock:
+        pending = list(_pending_remote_deletions)
+        _pending_remote_deletions.clear()
+    uploaded = 0
+    errors = 0
+    for rel_path in pending:
+        abs_path = os.path.join(local_path, rel_path)
+        if not os.path.exists(abs_path):
+            log("ERROR", f"Cannot upload — local file missing: {rel_path}")
+            errors += 1
+            continue
+        try:
+            info = _upload_file(vault_node, rel_path, abs_path, api)
+            if info:
+                h = hash_file_head(abs_path)
+                upsert_state(
+                    rel_path,
+                    local_mtime=info.get("mtime", os.path.getmtime(abs_path)),
+                    local_hash=h or "",
+                    remote_etag=info.get("etag", ""),
+                    remote_mtime=info.get("mtime", os.path.getmtime(abs_path)),
+                    remote_size=info.get("size", os.path.getsize(abs_path)),
+                    last_sync_hash=h or "",
+                )
+                uploaded += 1
+                log("INFO", f"Uploaded back to iCloud: {rel_path}")
+        except Exception as e:
+            errors += 1
+            log("ERROR", f"Failed to upload {rel_path}: {e}")
+    invalidate_remote_cache()
+    resume()
+    log("INFO", f"Uploaded {uploaded} file(s) back to iCloud ({errors} errors)")
 
 
 def is_running():
@@ -321,6 +413,7 @@ def _run_sync_cycle(api, vault_node, cfg, force=False):
     stats_conflicts = 0
     stats_errors = 0
     stats_deleted = 0
+    _deletion_candidates = []
 
     sorted_paths = sorted(all_paths)
     for idx, rel_path in enumerate(sorted_paths):
@@ -515,18 +608,7 @@ def _run_sync_cycle(api, vault_node, cfg, force=False):
         elif local_info and not remote_info:
             if db_state:
                 if remote_fresh and sync_deletes:
-                    try:
-                        abs_path = os.path.join(local_path, rel_path)
-                        if os.path.isfile(abs_path):
-                            os.remove(abs_path)
-                        elif os.path.islink(abs_path):
-                            os.unlink(abs_path)
-                        delete_state(rel_path)
-                        stats_deleted += 1
-                        log("INFO", f"Deleted locally (remote deletion propagated): {rel_path}")
-                    except Exception as e:
-                        stats_errors += 1
-                        log("ERROR", f"Failed to delete locally {rel_path}: {e}")
+                    _deletion_candidates.append(rel_path)
             else:
                 try:
                     new_remote = _upload_file(vault_node, rel_path, os.path.join(local_path, rel_path), api) or {}
@@ -601,10 +683,34 @@ def _run_sync_cycle(api, vault_node, cfg, force=False):
                 stats_deleted += 1
                 log("INFO", f"Removed from tracking: {rel_path}")
 
+    # ── Bulk remote deletion guard ──
+    if _deletion_candidates:
+        if len(_deletion_candidates) > _DELETION_THRESHOLD:
+            with _pending_deletions_lock:
+                _pending_remote_deletions[:] = _deletion_candidates
+            for rel_path in _deletion_candidates:
+                log("ERROR", f"Remote deletion pending confirmation: {rel_path}")
+            log("ERROR", f"Bulk remote deletion detected ({len(_deletion_candidates)} files) — sync paused until confirmed")
+            _sync_paused.set()
+            return
+
+        for rel_path in _deletion_candidates:
+            try:
+                abs_path = os.path.join(local_path, rel_path)
+                if os.path.isfile(abs_path):
+                    os.remove(abs_path)
+                elif os.path.islink(abs_path):
+                    os.unlink(abs_path)
+                delete_state(rel_path)
+                stats_deleted += 1
+                log("INFO", f"Deleted locally (remote deletion propagated): {rel_path}")
+            except Exception as e:
+                stats_errors += 1
+                log("ERROR", f"Failed to delete locally {rel_path}: {e}")
+
     if not remote_fresh:
         log("DEBUG", "Remote scan data is stale — skipping deletions")
 
-    # ── Handle actual deletions ──
     if sync_deletes and remote_fresh:
         stats_deleted += _handle_deletions(local_files, remote_files, vault_node, local_path)
 

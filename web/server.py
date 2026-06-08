@@ -15,8 +15,9 @@ import uvicorn
 from config import load as load_config, save as save_config
 from sync_engine import (
     get_logs, subscribe_logs, unsubscribe_logs,
-    is_running, is_paused, pause, resume, trigger_sync, shutdown,
+    is_running, is_paused, trigger_sync, shutdown,
     _load_stats, set_log_level, log as engine_log,
+    get_pending_deletions, confirm_pending_deletions, cancel_pending_deletions, upload_pending_deletions,
 )
 from state_db import unresolved_conflicts, resolve_conflict, remove_conflict
 
@@ -38,8 +39,9 @@ _ws_clients = set()
 
 @app.get("/", response_class=HTMLResponse)
 async def dashboard(request: Request):
+    pending = get_pending_deletions()
     return templates.TemplateResponse(
-        request, "dashboard.html", {}
+        request, "dashboard.html", {"pending": pending}
     )
 
 
@@ -72,6 +74,7 @@ async def config_page(request: Request):
 async def api_status():
     cfg = load_config()
     stats = _load_stats()
+    pending = get_pending_deletions()
     return {
         "running": is_running(),
         "paused": is_paused(),
@@ -79,6 +82,8 @@ async def api_status():
         "vault_name": cfg.get("vault_name", ""),
         **stats,
         "conflicts": len(unresolved_conflicts()),
+        "pending_deletions": len(pending),
+        "pending_list": pending,
     }
 
 
@@ -89,16 +94,45 @@ async def api_sync():
     return {"ok": True, "message": "Sync triggered"}
 
 
-@app.post("/api/pause")
-async def api_pause():
-    pause()
-    return {"ok": True, "message": "Paused"}
+@app.get("/api/pending-deletions")
+async def api_pending_deletions():
+    return get_pending_deletions()
 
 
-@app.post("/api/resume")
-async def api_resume():
-    resume()
-    return {"ok": True, "message": "Resumed"}
+@app.post("/api/pending-deletions/confirm")
+async def api_confirm_deletions():
+    try:
+        from config import load as load_cfg
+        from auth import authenticate, find_vault_root, get_password
+        cfg = load_cfg()
+        api = authenticate(cfg["apple_id"], get_password(cfg["apple_id"]), interactive=False)
+        vault_node = find_vault_root(api, cfg["vault_name"])
+        confirm_pending_deletions(api, vault_node, cfg)
+        return {"ok": True, "message": "Deletions confirmed"}
+    except Exception as e:
+        engine_log("ERROR", f"Failed to confirm deletions: {e}")
+        return {"ok": False, "message": str(e)}
+
+
+@app.post("/api/pending-deletions/cancel")
+async def api_cancel_deletions():
+    cancel_pending_deletions()
+    return {"ok": True, "message": "Deletions skipped"}
+
+
+@app.post("/api/pending-deletions/upload")
+async def api_upload_deletions():
+    try:
+        from config import load as load_cfg
+        from auth import authenticate, find_vault_root, get_password
+        cfg = load_cfg()
+        api = authenticate(cfg["apple_id"], get_password(cfg["apple_id"]), interactive=False)
+        vault_node = find_vault_root(api, cfg["vault_name"])
+        upload_pending_deletions(api, vault_node, cfg)
+        return {"ok": True, "message": "Files uploaded back to iCloud"}
+    except Exception as e:
+        engine_log("ERROR", f"Failed to upload pending files: {e}")
+        return {"ok": False, "message": str(e)}
 
 
 @app.get("/api/logs")
@@ -192,11 +226,14 @@ async def ws_status(websocket: WebSocket):
     try:
         while True:
             stats = _load_stats()
+            pending = get_pending_deletions()
             await websocket.send_json({
                 "running": is_running(),
                 "paused": is_paused(),
                 **stats,
                 "conflicts": len(unresolved_conflicts()),
+                "pending_deletions": len(pending),
+                "pending_list": pending,
             })
             await asyncio.sleep(2)
     except WebSocketDisconnect:

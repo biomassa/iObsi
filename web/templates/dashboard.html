@@ -6,7 +6,6 @@
     <span id="lastSync" style="color:#8b949e;font-size:13px;"></span>
     <span style="flex:1"></span>
     <button class="btn" onclick="triggerSync()">Sync Now</button>
-    <button id="pauseBtn" class="btn" onclick="togglePause()">Pause</button>
 </div>
 
 <div class="grid">
@@ -35,6 +34,38 @@
         <div class="label">Deleted</div>
     </div>
 </div>
+
+<div id="pendingDeletionsCard" class="card" style="border:1px solid #f85149;background:#2d0a0a;display:none">
+    <h2 style="color:#f85149;display:flex;align-items:center;gap:8px">
+        <span>⚠</span>
+        <span>Pending Deletion Confirmation</span>
+    </h2>
+    <p style="color:#8b949e;margin:8px 0">
+        <span id="pendingDeletionsCount">0</span> file(s) detected as removed from iCloud.
+        Confirm only if you are sure these files were intentionally deleted from iCloud.
+    </p>
+    <div id="pendingDeletionsList" style="color:#f0f6fc;font-family:monospace;font-size:13px;margin:8px 0;line-height:1.6"></div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+        <button id="btnConfirmDel" class="btn btn-danger" onclick="confirmDeletions()">Confirm Deletions</button>
+        <button id="btnUploadDel" class="btn" style="background:#1f6feb;color:#fff;border:none;padding:8px 16px;cursor:pointer" onclick="uploadDeletions()">Upload local copies back to iCloud</button>
+        <button id="btnSkipDel" class="btn" onclick="cancelDeletions()">Skip this batch</button>
+    </div>
+</div>
+
+<script>
+    // Pre-populate pending deletions from server-side data
+    (function() {
+        var pending = {{ pending | tojson | safe }};
+        var card = document.getElementById("pendingDeletionsCard");
+        var countEl = document.getElementById("pendingDeletionsCount");
+        var listEl = document.getElementById("pendingDeletionsList");
+        if (card && pending && pending.length > 0) {
+            card.style.display = "block";
+            countEl.textContent = pending.length;
+            listEl.textContent = pending.join(", ");
+        }
+    })();
+</script>
 
 <div class="card card-plain">
     <h2>Recent Activity</h2>

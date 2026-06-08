@@ -85,6 +85,22 @@ function updateStatus(s) {
     setStat("statConflicts", s.conflicts);
     setStat("statErrors", s.errors);
     setStat("statDeleted", s.deleted);
+
+    const card = document.getElementById("pendingDeletionsCard");
+    const countEl = document.getElementById("pendingDeletionsCount");
+    const listEl = document.getElementById("pendingDeletionsList");
+    if (card && countEl && listEl) {
+        if (s.pending_deletions > 0) {
+            card.style.display = "block";
+            countEl.textContent = s.pending_deletions;
+            if (s.pending_list && s.pending_list.length > 0) {
+                listEl.textContent = s.pending_list.join(", ");
+            }
+        } else {
+            card.style.display = "none";
+            listEl.innerHTML = "";
+        }
+    }
 }
 
 function setStat(id, val) {
@@ -98,18 +114,55 @@ async function triggerSync() {
     await fetch("/api/sync", { method: "POST" });
 }
 
-let paused = false;
-
-async function togglePause() {
-    const btn = document.getElementById("pauseBtn");
-    if (paused) {
-        await fetch("/api/resume", { method: "POST" });
-        paused = false;
-        btn.textContent = "Pause";
+function setPendingBusy(btnId, busy, label) {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    const all = [document.getElementById("btnConfirmDel"), document.getElementById("btnUploadDel"), document.getElementById("btnSkipDel")];
+    if (busy) {
+        all.forEach(b => { if (b) b.disabled = true; });
+        btn.textContent = label;
     } else {
-        await fetch("/api/pause", { method: "POST" });
-        paused = true;
-        btn.textContent = "Resume";
+        all.forEach(b => { if (b) b.disabled = false; });
+        btn.textContent = label;
+    }
+}
+
+async function confirmDeletions() {
+    setPendingBusy("btnConfirmDel", true, "Confirming...");
+    try {
+        const r = await fetch("/api/pending-deletions/confirm", { method: "POST" });
+        const data = await r.json();
+        if (!data.ok) { alert("Error: " + (data.message || "unknown")); setPendingBusy("btnConfirmDel", false, "Confirm Deletions"); return; }
+        triggerSync();
+    } catch (e) {
+        alert("Request failed: " + e.message);
+    } finally {
+        setPendingBusy("btnConfirmDel", false, "Confirm Deletions");
+    }
+}
+
+async function cancelDeletions() {
+    setPendingBusy("btnSkipDel", true, "Skipping...");
+    try {
+        await fetch("/api/pending-deletions/cancel", { method: "POST" });
+    } catch (e) {
+        alert("Request failed: " + e.message);
+    } finally {
+        setPendingBusy("btnSkipDel", false, "Skip this batch");
+    }
+}
+
+async function uploadDeletions() {
+    setPendingBusy("btnUploadDel", true, "Uploading...");
+    try {
+        const r = await fetch("/api/pending-deletions/upload", { method: "POST" });
+        const data = await r.json();
+        if (!data.ok) { alert("Error: " + (data.message || "unknown")); setPendingBusy("btnUploadDel", false, "Upload local copies back to iCloud"); return; }
+        triggerSync();
+    } catch (e) {
+        alert("Request failed: " + e.message);
+    } finally {
+        setPendingBusy("btnUploadDel", false, "Upload local copies back to iCloud");
     }
 }
 
@@ -195,6 +248,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (document.getElementById("statusBadge")) {
         connectStatusWs();
+        fetch("/api/status")
+            .then(r => r.json())
+            .then(s => updateStatus(s));
     }
     if (document.getElementById("conflictList")) {
         loadConflicts();
