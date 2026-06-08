@@ -64,7 +64,7 @@ def _walk_sync(node, prefix=""):
         if should_ignore(rel):
             continue
         try:
-            if child.type == "folder":
+            if child.type in ("folder", "app_library"):
                 entries.update(_walk_sync(child, rel))
             else:
                 entries[rel] = {
@@ -141,7 +141,7 @@ def scan_remote(vault_node, force=False):
         if should_ignore(name):
             continue
         try:
-            if child.type == "folder":
+            if child.type in ("folder", "app_library"):
                 futs.append(_EXPLORE_POOL.submit(_explore_one, child, name))
             else:
                 entries[name] = {
