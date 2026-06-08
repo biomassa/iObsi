@@ -310,7 +310,7 @@ def _run_sync_cycle(api, vault_node, cfg, force=False):
     # Safety: if remote scan returned far fewer files than local, abort
     remote_count = len(remote_files)
     local_count = len(local_files)
-    if remote_count < local_count * 0.8:
+    if remote_count < local_count * 0.9:
         log("CRITICAL", f"Remote scan returned {remote_count} files vs {local_count} local — aborting cycle to prevent data loss")
         return
 
