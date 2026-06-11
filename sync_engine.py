@@ -329,7 +329,7 @@ def _upload_file(root_node, rel_path, local_abs_path, api=None):
                 parent.upload(f)
             break
         except Exception as e:
-            if _attempt == 0 and api and ("Authentication required" in str(e)):
+            if _attempt == 0 and api and (any(x in str(e) for x in ("Authentication required", "Unauthorized"))):
                 try:
                     api.authenticate()
                     continue

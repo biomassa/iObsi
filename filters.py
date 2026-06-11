@@ -6,8 +6,7 @@ DEFAULT_IGNORE = [
     "*.icloud", ".DS_Store", "._*",
     "~$*", ".trash/",
     ".sync-tmp-*",
-    ".obsidian/workspace",
-    ".obsidian/workspace-mobile",
+    ".obsidian/workspace*",
 ]
 
 
