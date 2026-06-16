@@ -170,6 +170,26 @@ async function uploadDeletions() {
     }
 }
 
+// ── Clean Stats ─────────────────────────────────
+
+async function cleanStats() {
+    const btn = document.getElementById("btnCleanStats");
+    if (!btn) return;
+    btn.disabled = true;
+    const orig = btn.textContent;
+    btn.textContent = "Cleaning...";
+    try {
+        await fetch("/api/clear-stats", { method: "POST" });
+        const r = await fetch("/api/status");
+        updateStatus(await r.json());
+    } catch (e) {
+        alert("Failed: " + e.message);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = orig;
+    }
+}
+
 // ── Stop daemon ─────────────────────────────────
 
 function showStoppedUI() {

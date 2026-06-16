@@ -20,7 +20,7 @@ from sync_engine import (
     _load_stats, set_log_level, log as engine_log,
     get_pending_deletions, confirm_pending_deletions, cancel_pending_deletions, upload_pending_deletions,
 )
-from state_db import unresolved_conflicts, resolve_conflict, remove_conflict
+from state_db import unresolved_conflicts, resolve_conflict, remove_conflict, set_meta, clear_logs
 
 HERE = Path(__file__).parent
 TEMPLATES = HERE / "templates"
@@ -140,6 +140,16 @@ async def api_upload_deletions():
     except Exception as e:
         engine_log("ERROR", f"Failed to upload pending files: {e}")
         return {"ok": False, "message": str(e)}
+
+
+@app.post("/api/clear-stats")
+async def api_clear_stats():
+    for key in ("uploaded", "downloaded", "conflicts", "errors", "deleted"):
+        set_meta(f"stats_{key}", "0")
+    set_meta("last_sync", "")
+    clear_logs()
+    engine_log("INFO", "Stats cleared")
+    return {"ok": True}
 
 
 @app.post("/api/stop")

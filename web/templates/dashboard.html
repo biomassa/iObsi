@@ -49,10 +49,11 @@
     <div id="daemonRunning">
         <div style="display:flex;align-items:center;justify-content:space-between">
             <h2 style="color:#f0f6fc;margin:0">Daemon</h2>
-            <div style="display:flex;gap:8px">
-                <button class="btn" onclick="triggerSync()">Sync Now</button>
-                <button id="btnStopDaemon" class="btn btn-danger" onclick="stopDaemon()">Stop daemon</button>
-            </div>
+<div style="display:flex;gap:8px">
+    <button class="btn" onclick="triggerSync()">Sync Now</button>
+    <button class="btn" id="btnCleanStats" onclick="cleanStats()" style="background:#9e6a03;border-color:#d29922;color:#fff">Clean Stats</button>
+    <button id="btnStopDaemon" class="btn btn-danger" onclick="stopDaemon()">Stop daemon</button>
+</div>
         </div>
         <div style="display:flex;align-items:center;gap:12px;margin-top:12px">
             <span id="statusBadge" class="status-badge stopped">● Connecting...</span>
