@@ -1,3 +1,5 @@
+let _intentionalStop = false;
+
 // ── Log WebSocket ────────────────────────────────
 
 let logSocket = null;
@@ -13,6 +15,7 @@ function connectLogWs() {
         appendLog(data);
     };
     logSocket.onclose = () => {
+        if (_intentionalStop) { showStoppedUI(); return; }
         setTimeout(connectLogWs, 2000);
     };
 }
@@ -55,6 +58,7 @@ function connectStatusWs() {
         updateStatus(s);
     };
     statusSocket.onclose = () => {
+        if (_intentionalStop) { showStoppedUI(); return; }
         setTimeout(connectStatusWs, 2000);
     };
 }
@@ -164,6 +168,34 @@ async function uploadDeletions() {
     } finally {
         setPendingBusy("btnUploadDel", false, "Upload local copies back to iCloud");
     }
+}
+
+// ── Stop daemon ─────────────────────────────────
+
+function showStoppedUI() {
+    const badge = document.getElementById("statusBadge");
+    if (badge) {
+        badge.className = "status-badge stopped";
+        badge.textContent = "● Stopped";
+    }
+    const running = document.getElementById("daemonRunning");
+    const stopped = document.getElementById("daemonStopped");
+    if (running) running.style.display = "none";
+    if (stopped) stopped.style.display = "block";
+}
+
+async function stopDaemon() {
+    const btn = document.getElementById("btnStopDaemon");
+    if (!btn) return;
+    btn.disabled = true;
+    btn.textContent = "Stopping...";
+    _intentionalStop = true;
+    try {
+        await fetch("/api/stop", { method: "POST" });
+    } catch (e) {
+        // Server shutting down — expected
+    }
+    showStoppedUI();
 }
 
 // ── Conflicts page ───────────────────────────────

@@ -1,5 +1,6 @@
 import asyncio
 import json
+import os
 import time
 import queue
 import threading
@@ -37,11 +38,17 @@ _ws_clients = set()
 # ── HTML pages ──────────────────────────────────────
 
 
+PROJECT_ROOT = HERE.parent
+
 @app.get("/", response_class=HTMLResponse)
 async def dashboard(request: Request):
     pending = get_pending_deletions()
     return templates.TemplateResponse(
-        request, "dashboard.html", {"pending": pending}
+        request, "dashboard.html", {
+            "pending": pending,
+            "venv_activate": str(PROJECT_ROOT / ".venv" / "bin" / "activate"),
+            "sync_py": str(PROJECT_ROOT / "sync.py"),
+        }
     )
 
 
@@ -133,6 +140,15 @@ async def api_upload_deletions():
     except Exception as e:
         engine_log("ERROR", f"Failed to upload pending files: {e}")
         return {"ok": False, "message": str(e)}
+
+
+@app.post("/api/stop")
+async def api_stop():
+    engine_log("INFO", "Stop requested via web UI — shutting down")
+    shutdown()
+    loop = asyncio.get_event_loop()
+    loop.call_later(1, os._exit, 0)
+    return {"status": "stopping"}
 
 
 @app.get("/api/logs")

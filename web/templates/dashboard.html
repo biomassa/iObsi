@@ -52,6 +52,24 @@
     </div>
 </div>
 
+<div id="daemonCard" class="card" style="border:1px solid #30363d;margin-top:32px">
+    <div id="daemonRunning">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+            <h2 style="color:#f0f6fc;margin:0">Daemon</h2>
+            <button id="btnStopDaemon" class="btn btn-danger" onclick="stopDaemon()">Stop daemon</button>
+        </div>
+    </div>
+    <div id="daemonStopped" style="display:none">
+        <h2 style="color:#f0f6fc;margin:0 0 12px 0">Daemon</h2>
+        <div style="color:#f87171;margin-bottom:12px">● Stopped</div>
+        <p style="color:#8b949e;margin-bottom:8px">Run this command in terminal to restart:</p>
+        <div style="display:flex;justify-content:flex-end;margin-bottom:4px">
+            <button id="btnCopyCmd" onclick="copyCmd()" style="background:none;border:1px solid #30363d;color:#8b949e;border-radius:4px;padding:2px 10px;font-size:11px;cursor:pointer">Copy</button>
+        </div>
+        <pre id="restartCmd" style="background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:12px;font-family:monospace;font-size:12px;white-space:pre-wrap;word-break:break-all">nohup bash -c "source {{ venv_activate }} && python3 {{ sync_py }} run" > /tmp/iobsi-daemon.log 2>&1 &</pre>
+    </div>
+</div>
+
 <script>
     // Pre-populate pending deletions from server-side data
     (function() {
@@ -65,6 +83,19 @@
             listEl.textContent = pending.join(", ");
         }
     })();
+
+    function copyCmd() {
+        var el = document.getElementById("restartCmd");
+        if (!el) return;
+        var text = el.textContent.trim();
+        navigator.clipboard.writeText(text).then(function() {
+            var btn = document.getElementById("btnCopyCmd");
+            if (!btn) return;
+            var orig = btn.textContent;
+            btn.textContent = "Copied!";
+            setTimeout(function() { btn.textContent = orig; }, 2000);
+        });
+    }
 </script>
 
 <div class="card card-plain">
