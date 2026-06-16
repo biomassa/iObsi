@@ -68,19 +68,19 @@ function updateStatus(s) {
     if (badge) {
         if (s.paused) {
             badge.className = "status-badge paused";
-            badge.textContent = "● Paused";
+            badge.textContent = "● paused";
         } else if (s.running) {
             badge.className = "status-badge running";
-            badge.textContent = "● Syncing…";
+            badge.textContent = "● syncing…";
         } else {
             badge.className = "status-badge running";
-            badge.textContent = "● Running";
+            badge.textContent = "● running";
         }
     }
 
     const lastSync = document.getElementById("lastSync");
     if (lastSync && s.last_sync) {
-        lastSync.textContent = `Last sync: ${s.last_sync}`;
+        lastSync.textContent = `last sync: ${s.last_sync}`;
     }
 
     setStat("statFiles", s.files);
@@ -132,41 +132,41 @@ function setPendingBusy(btnId, busy, label) {
 }
 
 async function confirmDeletions() {
-    setPendingBusy("btnConfirmDel", true, "Confirming...");
+    setPendingBusy("btnConfirmDel", true, "confirming...");
     try {
         const r = await fetch("/api/pending-deletions/confirm", { method: "POST" });
         const data = await r.json();
-        if (!data.ok) { alert("Error: " + (data.message || "unknown")); setPendingBusy("btnConfirmDel", false, "Confirm Deletions"); return; }
+        if (!data.ok) { alert("error: " + (data.message || "unknown")); setPendingBusy("btnConfirmDel", false, "confirm deletions"); return; }
         triggerSync();
     } catch (e) {
-        alert("Request failed: " + e.message);
+        alert("request failed: " + e.message);
     } finally {
-        setPendingBusy("btnConfirmDel", false, "Confirm Deletions");
+        setPendingBusy("btnConfirmDel", false, "confirm deletions");
     }
 }
 
 async function cancelDeletions() {
-    setPendingBusy("btnSkipDel", true, "Skipping...");
+    setPendingBusy("btnSkipDel", true, "skipping...");
     try {
         await fetch("/api/pending-deletions/cancel", { method: "POST" });
     } catch (e) {
-        alert("Request failed: " + e.message);
+        alert("request failed: " + e.message);
     } finally {
-        setPendingBusy("btnSkipDel", false, "Skip this batch");
+        setPendingBusy("btnSkipDel", false, "skip this batch");
     }
 }
 
 async function uploadDeletions() {
-    setPendingBusy("btnUploadDel", true, "Uploading...");
+    setPendingBusy("btnUploadDel", true, "uploading...");
     try {
         const r = await fetch("/api/pending-deletions/upload", { method: "POST" });
         const data = await r.json();
-        if (!data.ok) { alert("Error: " + (data.message || "unknown")); setPendingBusy("btnUploadDel", false, "Upload local copies back to iCloud"); return; }
+        if (!data.ok) { alert("error: " + (data.message || "unknown")); setPendingBusy("btnUploadDel", false, "upload local copies back to iCloud"); return; }
         triggerSync();
     } catch (e) {
-        alert("Request failed: " + e.message);
+        alert("request failed: " + e.message);
     } finally {
-        setPendingBusy("btnUploadDel", false, "Upload local copies back to iCloud");
+        setPendingBusy("btnUploadDel", false, "upload local copies back to iCloud");
     }
 }
 
@@ -177,13 +177,13 @@ async function cleanStats() {
     if (!btn) return;
     btn.disabled = true;
     const orig = btn.textContent;
-    btn.textContent = "Cleaning...";
+    btn.textContent = "cleaning...";
     try {
         await fetch("/api/clear-stats", { method: "POST" });
         const r = await fetch("/api/status");
         updateStatus(await r.json());
     } catch (e) {
-        alert("Failed: " + e.message);
+        alert("failed: " + e.message);
     } finally {
         btn.disabled = false;
         btn.textContent = orig;
@@ -196,7 +196,7 @@ function showStoppedUI() {
     const badge = document.getElementById("statusBadge");
     if (badge) {
         badge.className = "status-badge stopped";
-        badge.textContent = "● Stopped";
+        badge.textContent = "● stopped";
     }
     const running = document.getElementById("daemonRunning");
     const stopped = document.getElementById("daemonStopped");
@@ -208,7 +208,7 @@ async function stopDaemon() {
     const btn = document.getElementById("btnStopDaemon");
     if (!btn) return;
     btn.disabled = true;
-    btn.textContent = "Stopping...";
+    btn.textContent = "stopping...";
     _intentionalStop = true;
     try {
         await fetch("/api/stop", { method: "POST" });
@@ -228,7 +228,7 @@ async function loadConflicts() {
     const conflicts = await resp.json();
 
     if (conflicts.length === 0) {
-        container.innerHTML = '<div class="card" style="color:#7ee787">No unresolved conflicts</div>';
+        container.innerHTML = '<div class="card" style="color:#7ee787">no unresolved conflicts</div>';
         return;
     }
 
@@ -237,18 +237,18 @@ async function loadConflicts() {
             <div style="font-weight:600;margin-bottom:8px">${escapeHtml(c.path)}</div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:12px">
                 <div>
-                    <div style="color:#8b949e;margin-bottom:4px">Local (${new Date(c.local_mtime * 1000).toLocaleString()})</div>
+                    <div style="color:#8b949e;margin-bottom:4px">local (${new Date(c.local_mtime * 1000).toLocaleString()})</div>
                     <div class="preview-box">${escapeHtml(c.local_preview || "(binary)")}</div>
                 </div>
                 <div>
-                    <div style="color:#8b949e;margin-bottom:4px">Remote (${new Date(c.remote_mtime * 1000).toLocaleString()})</div>
+                    <div style="color:#8b949e;margin-bottom:4px">remote (${new Date(c.remote_mtime * 1000).toLocaleString()})</div>
                     <div class="preview-box">${escapeHtml(c.remote_preview || "(binary)")}</div>
                 </div>
             </div>
             <div class="conflict-actions">
-                <button class="btn btn-sm" onclick="resolveConflict('${encodeURIComponent(c.path)}','local')">Keep Local</button>
-                <button class="btn btn-sm" onclick="resolveConflict('${encodeURIComponent(c.path)}','remote')">Keep Remote</button>
-                <button class="btn btn-sm" onclick="resolveConflict('${encodeURIComponent(c.path)}','keep-both')">Keep Both</button>
+                <button class="btn btn-sm" onclick="resolveConflict('${encodeURIComponent(c.path)}','local')">keep local</button>
+                <button class="btn btn-sm" onclick="resolveConflict('${encodeURIComponent(c.path)}','remote')">keep remote</button>
+                <button class="btn btn-sm" onclick="resolveConflict('${encodeURIComponent(c.path)}','keep-both')">keep both</button>
             </div>
         </div>
     `).join("");
@@ -278,7 +278,7 @@ async function saveConfig(event) {
     const result = await resp.json();
     const status = document.getElementById("configStatus");
     if (status) {
-        status.textContent = result.ok ? "Saved ✓" : "Error!";
+        status.textContent = result.ok ? "saved ✓" : "error!";
         setTimeout(() => { status.textContent = ""; }, 3000);
     }
 }

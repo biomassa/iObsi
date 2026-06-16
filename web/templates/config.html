@@ -1,47 +1,47 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="card">
-    <h2>Configuration</h2>
+    <h2>configuration</h2>
     <form id="configForm" onsubmit="saveConfig(event)">
         <div class="form-group">
-            <label>Vault Name (on iCloud Drive)</label>
+            <label>vault name (on iCloud Drive)</label>
             <input type="text" name="vault_name" value="{{ config.vault_name }}">
         </div>
         <div class="form-group">
-            <label>Local Path</label>
+            <label>local path</label>
             <input type="text" name="local_path" value="{{ config.local_path }}">
         </div>
         <div class="form-group">
-            <label>Poll Interval (seconds)</label>
+            <label>poll interval (seconds)</label>
             <input type="number" name="poll_interval" value="{{ config.poll_interval }}">
         </div>
         <div class="form-group">
-            <label>Conflict Strategy</label>
+            <label>conflict strategy</label>
             <select name="conflict_strategy">
-                <option value="last-writer-wins" {% if config.conflict_strategy == 'last-writer-wins' %}selected{% endif %}>Last Writer Wins</option>
-                <option value="keep-both" {% if config.conflict_strategy == 'keep-both' %}selected{% endif %}>Keep Both</option>
-                <option value="prefer-local" {% if config.conflict_strategy == 'prefer-local' %}selected{% endif %}>Prefer Local</option>
-                <option value="prefer-remote" {% if config.conflict_strategy == 'prefer-remote' %}selected{% endif %}>Prefer Remote</option>
-                <option value="skip" {% if config.conflict_strategy == 'skip' %}selected{% endif %}>Skip (Manual)</option>
+                <option value="last-writer-wins" {% if config.conflict_strategy == 'last-writer-wins' %}selected{% endif %}>last writer wins</option>
+                <option value="keep-both" {% if config.conflict_strategy == 'keep-both' %}selected{% endif %}>keep both</option>
+                <option value="prefer-local" {% if config.conflict_strategy == 'prefer-local' %}selected{% endif %}>prefer local</option>
+                <option value="prefer-remote" {% if config.conflict_strategy == 'prefer-remote' %}selected{% endif %}>prefer remote</option>
+                <option value="skip" {% if config.conflict_strategy == 'skip' %}selected{% endif %}>skip (manual)</option>
             </select>
         </div>
         <div class="form-group">
-            <label>Sync Deletes</label>
+            <label>sync deletes</label>
             <select name="sync_deletes">
-                <option value="true" {% if config.sync_deletes %}selected{% endif %}>Yes</option>
-                <option value="false" {% if not config.sync_deletes %}selected{% endif %}>No</option>
+                <option value="true" {% if config.sync_deletes %}selected{% endif %}>yes</option>
+                <option value="false" {% if not config.sync_deletes %}selected{% endif %}>no</option>
             </select>
         </div>
         <div class="form-group">
-            <label>Log Level</label>
+            <label>log level</label>
             <select name="log_level">
-                <option value="DEBUG" {% if config.log_level == 'DEBUG' %}selected{% endif %}>DEBUG</option>
-                <option value="INFO" {% if config.log_level == 'INFO' %}selected{% endif %}>INFO</option>
-                <option value="WARN" {% if config.log_level == 'WARN' %}selected{% endif %}>WARN</option>
-                <option value="ERROR" {% if config.log_level == 'ERROR' %}selected{% endif %}>ERROR</option>
+                <option value="DEBUG" {% if config.log_level == 'DEBUG' %}selected{% endif %}>debug</option>
+                <option value="INFO" {% if config.log_level == 'INFO' %}selected{% endif %}>info</option>
+                <option value="WARN" {% if config.log_level == 'WARN' %}selected{% endif %}>warn</option>
+                <option value="ERROR" {% if config.log_level == 'ERROR' %}selected{% endif %}>error</option>
             </select>
         </div>
-        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="submit" class="btn btn-primary">save</button>
         <span id="configStatus" style="margin-left:12px;color:#7ee787;font-size:13px;"></span>
     </form>
 </div>
