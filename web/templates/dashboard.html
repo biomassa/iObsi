@@ -1,13 +1,6 @@
 {% extends "base.html" %}
 {% block head_meta %}<meta http-equiv="refresh" content="60">{% endblock %}
 {% block content %}
-<div class="toolbar">
-    <span id="statusBadge" class="status-badge stopped">● Connecting...</span>
-    <span id="lastSync" style="color:#8b949e;font-size:13px;"></span>
-    <span style="flex:1"></span>
-    <button class="btn" onclick="triggerSync()">Sync Now</button>
-</div>
-
 <div class="grid">
     <div class="stat">
         <div class="value" id="statFiles">—</div>
@@ -56,7 +49,14 @@
     <div id="daemonRunning">
         <div style="display:flex;align-items:center;justify-content:space-between">
             <h2 style="color:#f0f6fc;margin:0">Daemon</h2>
-            <button id="btnStopDaemon" class="btn btn-danger" onclick="stopDaemon()">Stop daemon</button>
+            <div style="display:flex;gap:8px">
+                <button class="btn" onclick="triggerSync()">Sync Now</button>
+                <button id="btnStopDaemon" class="btn btn-danger" onclick="stopDaemon()">Stop daemon</button>
+            </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:12px">
+            <span id="statusBadge" class="status-badge stopped">● Connecting...</span>
+            <span id="lastSync" style="color:#8b949e;font-size:13px;"></span>
         </div>
     </div>
     <div id="daemonStopped" style="display:none">
