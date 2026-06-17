@@ -3,7 +3,7 @@
 ![iObsi dashboard](iObsi.png)
 
 Bidirectional sync daemon for your Obsidian vault between iCloud Drive and a Linux machine. Keeps your notes in sync without a third-party cloud.
-
+The daemon watches your local vault via `watchdog`, performs a full iCloud Drive scan every 120s, and handles conflicts with a configurable strategy (last-writer-wins by default).
 Features a web dashboard (port 11111) with real-time sync logs via WebSocket.
 
 ## Status and disclaimer
@@ -58,4 +58,7 @@ lsof -ti:11111 | xargs kill
 ```
 Or use the Stop button in the browser dashboard.
 
-The daemon watches your local vault via `watchdog`, performs a full iCloud Drive scan every 120s, and handles conflicts with a configurable strategy (last-writer-wins by default).
+## TODO
+- security
+- https
+- more convenient ways to start the daemon
