@@ -1,16 +1,16 @@
-# iObsi — Obsidian ⇄ iCloud Sync Daemon
+# Obsidian ⇄ iCloud Sync Daemon
 
 ![iObsi dashboard](iObsi.png)
 
 Bidirectional sync daemon for your Obsidian vault between iCloud Drive and a Linux machine. Keeps your notes in sync without a third-party cloud.
 
-Features a web dashboard (port 11111) with real-time sync logs via WebSocket, a conflict resolution UI, config editor, and a CLI.
+Features a web dashboard (port 11111) with real-time sync logs via WebSocket.
 
 ## Status and disclaimer
 
 1. This is **VIBE CODED** (with opencode + big pickle model). I am not a developer, just needed this specific tool.
-Now, I do realise that putting vibecoded shit on gh is questionable, to put it mildly, but i did spend a couple days debugging it, so someone might find it handy and save themselves a few hours.
-2. Very much WIP. Feedback / PRs welcome. Seems to work for me but YMMV.
+Now, I do realise that putting vibecoded shit on git is questionable, to put it mildly, but i did spend a few days debugging it, so someone might find it handy and save themselves a few hours.
+2. Very much WIP. Feedback / PRs welcome. Seems to work great for me but YMMV.
 3. **I TAKE ABSOLUTELY NO RESPONSIBILITY FOR ANYTHING THIS TOOL CAUSES**, including complete data loss or anything else whatsoever.
 
 **ALWAYS BACK UP YOUR VAULT!**  
@@ -45,7 +45,7 @@ bash -c "source .venv/bin/activate && python3 sync.py once"
 bash -c "source .venv/bin/activate && python3 sync.py status"
 ```
 
-To run in the background:
+To run in the background (run from the project root or make sure the paths are correct):
 
 ```bash
 nohup bash -c "source .venv/bin/activate && python3 sync.py run" > /tmp/iobsi-daemon.log 2>&1 &
@@ -56,5 +56,6 @@ To stop the daemon:
 ```bash
 lsof -ti:11111 | xargs kill
 ```
+Or use the Stop button in the browser dashboard.
 
 The daemon watches your local vault via `watchdog`, performs a full iCloud Drive scan every 120s, and handles conflicts with a configurable strategy (last-writer-wins by default).
