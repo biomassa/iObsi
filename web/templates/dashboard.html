@@ -47,22 +47,22 @@
 
 <div id="daemonCard" class="card" style="border:1px solid #30363d;margin-top:32px">
     <div id="daemonRunning">
-        <div style="display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:12px">
             <h2 style="color:#f0f6fc;margin:0">daemon</h2>
-<div style="display:flex;gap:8px">
-    <button class="btn btn-primary" onclick="triggerSync()">sync now</button>
-    <button class="btn" id="btnCleanStats" onclick="cleanStats()" style="background:#9e6a03;border-color:#d29922;color:#fff">clean stats</button>
-    <button id="btnStopDaemon" class="btn btn-danger" onclick="stopDaemon()">stop daemon</button>
-</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:12px;margin-top:12px">
             <span id="statusBadge" class="status-badge stopped">● connecting...</span>
             <span id="lastSync" style="color:#8b949e;font-size:13px;"></span>
+            <div style="margin-left:auto;display:flex;gap:8px">
+                <button class="btn btn-primary" onclick="triggerSync()">sync now</button>
+                <button class="btn" id="btnCleanStats" onclick="cleanStats()" style="background:#9e6a03;border-color:#d29922;color:#fff">reset stats</button>
+                <button id="btnStopDaemon" class="btn btn-danger" onclick="stopDaemon()">stop daemon</button>
+            </div>
         </div>
     </div>
     <div id="daemonStopped" style="display:none">
-        <h2 style="color:#f0f6fc;margin:0 0 12px 0">daemon</h2>
-        <div style="color:#f87171;margin-bottom:12px">● stopped</div>
+        <div style="display:flex;align-items:center;gap:12px">
+            <h2 style="color:#f0f6fc;margin:0">daemon</h2>
+            <span style="color:#f87171">● stopped</span>
+        </div>
         <p style="color:#8b949e;margin-bottom:8px">run this command in terminal to restart:</p>
         <div style="display:flex;justify-content:flex-end;margin-bottom:4px">
             <button id="btnCopyCmd" onclick="copyCmd()" style="background:none;border:1px solid #30363d;color:#8b949e;border-radius:4px;padding:2px 10px;font-size:11px;cursor:pointer">copy</button>
