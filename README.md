@@ -62,3 +62,4 @@ Or use the Stop button in the browser dashboard.
 - security
 - https
 - more convenient ways to start the daemon
+- more clarity re: conflicts (though for me they never happened)
